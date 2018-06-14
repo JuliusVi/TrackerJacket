@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.UUID;
@@ -33,6 +35,8 @@ public class ConnectThread extends Thread {
     private final BluetoothSocket mmSocket;
     private final BluetoothDevice mmDevice;
     private final String TAG = "ConnectThread";
+
+    BufferedWriter bWrite;
 
     private MainActivity context;
     char x = 'y';
@@ -87,6 +91,9 @@ public class ConnectThread extends Thread {
         InputStreamReader inRead = new InputStreamReader(inSt);
         BufferedReader bRead = new BufferedReader(inRead);
 
+        OutputStreamWriter outWrite = new OutputStreamWriter(outSt);
+        bWrite = new BufferedWriter(outWrite);
+
         Log.d(TAG,"running");
 
         String line = "";
@@ -94,12 +101,12 @@ public class ConnectThread extends Thread {
 
         try {
             while (!(line = bRead.readLine()).startsWith("S")) {
+                //if(line.startsWith(""))
                 final String[] parts = line.split(",");
                 int multi = Integer.parseInt(parts[0]);
                 //Log.d(TAG, line);
                 for (int i = 2; i < 5; i++) {
                     int glob = multi * 4 + (i - 1);
-                    Log.d(TAG, glob + "" + glob);
                     context.valuesToDisplay[glob] = parts[i];
                 }
                 context.runOnUiThread(new Runnable() {
@@ -130,6 +137,16 @@ public class ConnectThread extends Thread {
             mmSocket.close();
         } catch (IOException e) {
             Log.e(TAG, "Could not close the client socket", e);
+        }
+    }
+
+    public void sendString(String data){
+        Log.d(TAG, "Sending to Jacket: " + data);
+        try {
+            bWrite.write(data);
+            bWrite.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

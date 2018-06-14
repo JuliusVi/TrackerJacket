@@ -20,8 +20,14 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/showDataBtn"
-            android:text="Update Data"/>
+            android:id="@+id/sendTimeBtn"
+            android:text="Timestamp"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/calibrateBtn"
+            android:text="Calibrate Jacket"
+            android:onClick="calibrateJacket"/>
 
     </LinearLayout>
 

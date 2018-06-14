@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     TextView tv[] = new TextView[20];
 
     public String[] valuesToDisplay = new String[20];
+    public double[] values = new double[20];
+    public double[] valuesOffset = new double[20];
     public String ctrlString = "r";
 
 
@@ -32,11 +34,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Button showData = (Button)findViewById(R.id.showDataBtn);
-        showData.setOnClickListener(new View.OnClickListener() {
+        final Button sendTime = (Button)findViewById(R.id.sendTimeBtn);
+        sendTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateDisplay();
+                connectThread.sendString("t" + System.currentTimeMillis() + "s");
             }
         });
 
@@ -82,21 +84,33 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "No target found");
             return;
         }
-        ConnectThread connTh = new ConnectThread(targetDevice, this);
-        connTh.start();
-
-        /*
-        try {
-            connTh.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        */
+        connectThread = new ConnectThread(targetDevice, this);
+        connectThread.start();
     }
 
     public void updateDisplay(){
         for (int i = 0; i < valuesToDisplay.length; i++) {
-            tv[i].setText(valuesToDisplay[i]);
+            if(i%4 != 0){
+                values[i] = Double.parseDouble(valuesToDisplay[i])-valuesOffset[i];
+                //valuesToDisplay[i] = String.valueOf(values[i]).split(",")[0];
+            }
+            tv[i].setText(String.valueOf(values[i]).split("\\.")[0]);//valuesToDisplay[i]);
         }
+    }
+
+    public void calibrateJacket(View v){
+        for (int i = 0; i < valuesOffset.length; i++) {
+            if(i%4 != 0){
+                valuesOffset[i] = values[i];
+            }
+        }
+        connectThread.sendString("C");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        connectThread.sendString("c");
+        Toast.makeText(this, "Calibration done", Toast.LENGTH_SHORT).show();
     }
 }
