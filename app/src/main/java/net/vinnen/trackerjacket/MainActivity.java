@@ -2,20 +2,33 @@ package net.vinnen.trackerjacket;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.hardware.Camera;
+import android.graphics.SurfaceTexture;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.security.Policy;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener{
 
     public static final String TAG = "ConnectThread";
+
+    private TextureView mTextureView;
+    Camera mCamera;
+    Paint green = new Paint();
+    Canvas pic;
 
     ConnectThread connectThread;
     String targetName = "TrackerJacket";
@@ -33,6 +46,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mTextureView = findViewById(R.id.textuV);
+        mTextureView.setSurfaceTextureListener(this);
+
+        green.setColor(Color.GREEN);
+        green.setStrokeWidth(10);
+
+
+
+
 
         final Button sendTime = (Button)findViewById(R.id.sendTimeBtn);
         sendTime.setOnClickListener(new View.OnClickListener() {
@@ -112,5 +135,38 @@ public class MainActivity extends AppCompatActivity {
         }
         connectThread.sendString("c");
         Toast.makeText(this, "Calibration done", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        mCamera = Camera.open();
+
+        try {
+            mCamera.setPreviewTexture(surface);
+            mCamera.startPreview();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //pic = mTextureView.lockCanvas();
+        //pic.drawCircle(50,50,50, green);
+        //mTextureView.unlockCanvasAndPost(pic);
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        mCamera.stopPreview();
+        mCamera.release();
+        return true;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        //pic.drawCircle(0,0,1, green);
+        //mTextureView.unlockCanvasAndPost(pic);
     }
 }

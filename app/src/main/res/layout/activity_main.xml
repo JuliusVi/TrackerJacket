@@ -28,6 +28,11 @@
             android:id="@+id/calibrateBtn"
             android:text="Calibrate Jacket"
             android:onClick="calibrateJacket"/>
+        <TextureView
+            android:id="@+id/textuV"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/calibrateBtn"/>
 
     </LinearLayout>
 
