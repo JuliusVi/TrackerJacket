@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.hardware.Camera;
 import android.graphics.SurfaceTexture;
+import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     Canvas pic;
 
     ConnectThread connectThread;
+    RendererThread rendererThread;
     String targetName = "TrackerJacket";
 
     ConstraintLayout[] cl = new ConstraintLayout[5];
@@ -139,6 +142,20 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+
+
+        rendererThread = new RendererThread(surface);
+        rendererThread.start();
+
+        GLES20.glViewport(0, 0, width, height);
+
+        float ratio = (float) width / height;
+
+        // this projection matrix is applied to object coordinates
+        // in the onDrawFrame() method
+        Matrix.frustumM(rendererThread.mProjectionMatrix, 0, -ratio, ratio, -1, 1, 1, 70);
+
+        /*
         mCamera = Camera.open();
 
         try {
@@ -147,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
         //pic = mTextureView.lockCanvas();
         //pic.drawCircle(50,50,50, green);
         //mTextureView.unlockCanvasAndPost(pic);
@@ -155,13 +173,15 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
 
+
     }
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        mCamera.stopPreview();
-        mCamera.release();
-        return true;
+        rendererThread.isStopped = true;
+        //mCamera.stopPreview();
+        //mCamera.release();
+        return false;
     }
 
     @Override
