@@ -25,14 +25,14 @@ public class Cube {
     static final int COORDS_PER_VERTEX = 3;
     static float cubeCoords[];
 
-    static float topLeft[] = {-0.5f,  0.5f, 0.5f};
-    static float bottomLeft[] = {-0.5f, -0.5f, 0.5f};
-    static float bottomRight[] = {0.5f, -0.5f, 0.5f};
-    static float topRight[] = {0.5f,  0.5f, 0.5f};
-    static float topLeftBack[] = {-0.5f,  0.5f, -0.5f};
-    static float bottomLeftBack[] = {-0.5f, -0.5f, -0.5f};
-    static float bottomRightBack[] = {0.5f, -0.5f, -0.5f};
-    static float topRightBack[] = {0.5f,  0.5f, -0.5f};
+    static float topLeft[] = {-0.5f,  1, 0.5f};
+    static float bottomLeft[] = {-0.5f, 0, 0.5f};
+    static float bottomRight[] = {0.5f, 0, 0.5f};
+    static float topRight[] = {0.5f,  1, 0.5f};
+    static float topLeftBack[] = {-0.5f,  1, -0.5f};
+    static float bottomLeftBack[] = {-0.5f, 0, -0.5f};
+    static float bottomRightBack[] = {0.5f, 0, -0.5f};
+    static float topRightBack[] = {0.5f,  1, -0.5f};
 
     float edges[][] ={topLeft, bottomLeft, bottomRight, topRight, topLeftBack, bottomLeftBack, bottomRightBack, topRightBack};
 
@@ -135,10 +135,10 @@ public class Cube {
 
         // get handle to shape's transformation matrix
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+        //GLES20.glUniform4f(GLES20.glGetAttribLocation(mProgram,"chris"),0,1f,0, 1);
 
         // Pass the projection and view transformation to the shader
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
-
 
         // Draw the triangle
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
@@ -149,6 +149,7 @@ public class Cube {
 
     private final String vertexShaderCode =
             "uniform mat4 uMVPMatrix;" +
+                    "attribute vec4 chris;" +
                     "attribute vec4 vPosition;" +
                     "void main() {" +
                     "  gl_Position = uMVPMatrix * vPosition;" +

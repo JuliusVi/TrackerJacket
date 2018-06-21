@@ -77,26 +77,52 @@ public class RendererThread extends Thread {
 
         float colorVelocity = 0.01f;
         float color = 0f;
-        float rota = 0f;
+
+        double rota = 0d; //Winkel
+        float xFin = 0f;
+        float yFin = 0f;
         egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
 
+        this.triangle = new Cube();
         while (!isStopped && egl.eglGetError() == EGL_SUCCESS) {
             egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
             if (color > 1 || color < 0) colorVelocity *= -1;
             color += colorVelocity;
-            rota += 0.02;
-            rota = rota % 5;
+            rota += 0.01;
+            rota = rota % 360;
+
+            xFin = (float)(2 * Math.cos(rota) - 2 * Math.sin(rota));
+            yFin = (float)(2 * Math.sin(rota) + 2 * Math.cos(rota));
 
             GLES20.glClearColor(color / 2, color, color, 0.10f);
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
             // Set the camera position (View matrix)
-            Matrix.setLookAtM(mViewMatrix, 0, rota, rota+1, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            Matrix.setLookAtM(mViewMatrix, 0, xFin, 4, yFin, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
             // Calculate the projection and view transformation
             Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
-            this.triangle = new Cube();
+            Matrix.translateM(mMVPMatrix,0,1,0,1);
+            // Draw shape
+            triangle.draw(mMVPMatrix);
+
+            Matrix.translateM(mMVPMatrix,0,-1,0,-1);
+            // Draw shape
+            triangle.draw(mMVPMatrix);
+
+            Matrix.translateM(mMVPMatrix,0,-1,0,-1);
+            // Draw shape
+            triangle.draw(mMVPMatrix);
+
+            Matrix.translateM(mMVPMatrix,0,2,0,0);
+            // Draw shape
+            triangle.draw(mMVPMatrix);
+
+            Matrix.translateM(mMVPMatrix,0,-2,0,2);
+            Matrix.rotateM(mMVPMatrix,0,45,0,1,0);
+            Matrix.rotateM(mMVPMatrix,0,90,1,0,0);
+            Matrix.scaleM(mMVPMatrix,0,1 ,2 ,1 );
             // Draw shape
             triangle.draw(mMVPMatrix);
 
