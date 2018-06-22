@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        Matrix.frustumM(rendererThread.mProjectionMatrix, 0, -ratio, ratio, -1, 1, 1, 70);
+        Matrix.frustumM(rendererThread.mProjectionMatrix, 0, -ratio, ratio, -1, 1, 1, 20);
 
         /*
         mCamera = Camera.open();

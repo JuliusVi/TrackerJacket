@@ -40,7 +40,11 @@ public class RendererThread extends Thread {
 
     boolean isStopped = false;
     private SurfaceTexture surface;
-    private Cube triangle;
+    private Cube upperLeftArm;
+    private Cube lowerLeftArm;
+    private Cube upperRightArm;
+    private Cube lowerRightArm;
+    private Cube body;
 
     public RendererThread(SurfaceTexture surface){
         this.surface = surface;
@@ -52,7 +56,7 @@ public class RendererThread extends Thread {
             EGL_GREEN_SIZE, 8,
             EGL_BLUE_SIZE, 8,
             EGL_ALPHA_SIZE, 8,
-            EGL_DEPTH_SIZE, 0,
+            EGL_DEPTH_SIZE, 24,
             EGL_STENCIL_SIZE, 0,
             EGL_NONE
     };
@@ -75,59 +79,56 @@ public class RendererThread extends Thread {
         EGLSurface eglSurface = egl.eglCreateWindowSurface(eglDisplay, eglConfig, surface, null);
 
 
-        float colorVelocity = 0.01f;
-        float color = 0f;
+        float color = 0.6f;
 
         double rota = 0d; //Winkel
         float xFin = 0f;
         float yFin = 0f;
+
         egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
 
-        this.triangle = new Cube();
+        // Enable depth testing
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
+
+        this.upperLeftArm = new Cube();
+        //this.lowerLeftArm = new Cube();
+        //this.upperRightArm = new Cube();
+        //this.lowerRightArm = new Cube();
+        //this.body = new Cube();
+
         while (!isStopped && egl.eglGetError() == EGL_SUCCESS) {
             egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
-            if (color > 1 || color < 0) colorVelocity *= -1;
-            color += colorVelocity;
             rota += 0.01;
             rota = rota % 360;
 
-            xFin = (float)(2 * Math.cos(rota) - 2 * Math.sin(rota));
-            yFin = (float)(2 * Math.sin(rota) + 2 * Math.cos(rota));
+            xFin = (float)(1 * Math.cos(rota) - 1 * Math.sin(rota));
+            yFin = (float)(1 * Math.sin(rota) + 1 * Math.cos(rota));
 
             GLES20.glClearColor(color / 2, color, color, 0.10f);
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
             // Set the camera position (View matrix)
-            Matrix.setLookAtM(mViewMatrix, 0, xFin, 4, yFin, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            Matrix.setLookAtM(mViewMatrix, 0, xFin, 2, yFin, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
             // Calculate the projection and view transformation
             Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
-            Matrix.translateM(mMVPMatrix,0,1,0,1);
+            Matrix.scaleM(mMVPMatrix,0, 0.05f, 0.5f, 0.05f);
+            Matrix.translateM(mMVPMatrix,0,0.1f,0,0);
             // Draw shape
-            triangle.draw(mMVPMatrix);
+            upperLeftArm.draw(mMVPMatrix);
+
+            Matrix.translateM(mMVPMatrix,0,-0.2f,0,0);
+            // Draw shape
+            this.upperLeftArm.draw(mMVPMatrix);
 
             Matrix.translateM(mMVPMatrix,0,-1,0,-1);
             // Draw shape
-            triangle.draw(mMVPMatrix);
-
-            Matrix.translateM(mMVPMatrix,0,-1,0,-1);
-            // Draw shape
-            triangle.draw(mMVPMatrix);
-
-            Matrix.translateM(mMVPMatrix,0,2,0,0);
-            // Draw shape
-            triangle.draw(mMVPMatrix);
-
-            Matrix.translateM(mMVPMatrix,0,-2,0,2);
-            Matrix.rotateM(mMVPMatrix,0,45,0,1,0);
-            Matrix.rotateM(mMVPMatrix,0,90,1,0,0);
-            Matrix.scaleM(mMVPMatrix,0,1 ,2 ,1 );
-            // Draw shape
-            triangle.draw(mMVPMatrix);
+            this.upperLeftArm.draw(mMVPMatrix);
 
             egl.eglSwapBuffers(eglDisplay, eglSurface);
-
             try {
                 Thread.sleep((long)(1f / 60f * 1000f)); // in real life this sleep is more complicated
             } catch (InterruptedException e) {
