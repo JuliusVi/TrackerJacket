@@ -27,6 +27,11 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     public static final String TAG = "ConnectThread";
 
+    public ArmSegment upperLeftArm = new ArmSegment();
+    public ArmSegment upperRightArm = new ArmSegment();
+    public ArmSegment lowerLeftArm = new ArmSegment();
+    public ArmSegment lowerRightArm = new ArmSegment();
+
     private TextureView mTextureView;
     Camera mCamera;
     Paint green = new Paint();
@@ -122,6 +127,9 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
             }
             tv[i].setText(String.valueOf(values[i]).split("\\.")[0]);//valuesToDisplay[i]);
         }
+        lowerRightArm.rotX = (float)values[3];
+        lowerRightArm.rotY = (float)values[2];
+        lowerRightArm.rotZ = (float)values[1];
     }
 
     public void calibrateJacket(View v){
@@ -144,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
 
 
-        rendererThread = new RendererThread(surface);
+        rendererThread = new RendererThread(surface, this);
         rendererThread.start();
 
         GLES20.glViewport(0, 0, width, height);
@@ -153,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        Matrix.frustumM(rendererThread.mProjectionMatrix, 0, -ratio, ratio, -1, 1, 1, 20);
+        Matrix.frustumM(rendererThread.mProjectionMatrix, 0, -ratio, ratio, -1, 1, 0.8f, 3);
 
         /*
         mCamera = Camera.open();

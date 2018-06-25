@@ -40,14 +40,16 @@ public class RendererThread extends Thread {
 
     boolean isStopped = false;
     private SurfaceTexture surface;
+    private  MainActivity mainActivity;
     private Cube upperLeftArm;
     private Cube lowerLeftArm;
     private Cube upperRightArm;
     private Cube lowerRightArm;
     private Cube body;
 
-    public RendererThread(SurfaceTexture surface){
+    public RendererThread(SurfaceTexture surface, MainActivity mainActivity){
         this.surface = surface;
+        this.mainActivity = mainActivity;
     }
 
     int[] config = {
@@ -100,33 +102,41 @@ public class RendererThread extends Thread {
 
         while (!isStopped && egl.eglGetError() == EGL_SUCCESS) {
             egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
-            rota += 0.01;
+            rota += 0.2;
             rota = rota % 360;
-
-            xFin = (float)(1 * Math.cos(rota) - 1 * Math.sin(rota));
-            yFin = (float)(1 * Math.sin(rota) + 1 * Math.cos(rota));
+            xFin = (float)(1 * Math.cos(Math.toRadians(rota)) - 1 * Math.sin(Math.toRadians(rota)));
+            yFin = (float)(1 * Math.sin(Math.toRadians(rota)) + 1 * Math.cos(Math.toRadians(rota)));
 
             GLES20.glClearColor(color / 2, color, color, 0.10f);
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
             // Set the camera position (View matrix)
-            Matrix.setLookAtM(mViewMatrix, 0, xFin, 2, yFin, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            Matrix.setLookAtM(mViewMatrix, 0, xFin, 2, yFin, 0f, 1.5f, 0f, 0f, 1.0f, 0.0f);
 
             // Calculate the projection and view transformation
             Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
-            Matrix.scaleM(mMVPMatrix,0, 0.05f, 0.5f, 0.05f);
-            Matrix.translateM(mMVPMatrix,0,0.1f,0,0);
-            // Draw shape
-            upperLeftArm.draw(mMVPMatrix);
 
-            Matrix.translateM(mMVPMatrix,0,-0.2f,0,0);
-            // Draw shape
-            this.upperLeftArm.draw(mMVPMatrix);
+            //Legs
+            //lowerLeftArm.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
+            //lowerRightArm.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
+            //upperRightArm.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
+            //body.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
+            upperLeftArm.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
+            upperLeftArm.draw(mMVPMatrix,-0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
+            upperLeftArm.draw(mMVPMatrix,0.15f,0.5f,0,0.08f,0.5f,0.08f,-15,0,8);
+            upperLeftArm.draw(mMVPMatrix,-0.15f,0.5f,0,0.08f,0.5f,0.08f,-15,0,-8);
+            //Body
+            upperLeftArm.draw(mMVPMatrix,0,1f,-0.1f,0.30f,0.7f,0.10f,0,0,0);
+            upperLeftArm.draw(mMVPMatrix,0,1.7f,-0.1f,0.14f,0.15f,0.16f,0,0,0);
 
-            Matrix.translateM(mMVPMatrix,0,-1,0,-1);
-            // Draw shape
-            this.upperLeftArm.draw(mMVPMatrix);
+            //RightArm
+            upperLeftArm.draw(mMVPMatrix,-0.15f,1.6f,-0.1f,0.065f,0.3f,0.065f,0,0,90);
+            upperLeftArm.draw(mMVPMatrix,-0.45f,1.6f,-0.1f,0.065f,0.30f,0.065f,mainActivity.lowerRightArm.rotX,mainActivity.lowerRightArm.rotY,mainActivity.lowerRightArm.rotZ);
+
+            //LeftArm
+            upperLeftArm.draw(mMVPMatrix,0.15f,1.6f,-0.1f,0.065f,0.3f,0.065f,0,0,-90);
+            upperLeftArm.draw(mMVPMatrix,0.45f,1.6f,-0.1f,0.065f,0.30f,0.065f,0, 0, -90);
 
             egl.eglSwapBuffers(eglDisplay, eglSurface);
             try {

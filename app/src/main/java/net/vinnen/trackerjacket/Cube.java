@@ -1,6 +1,7 @@
 package net.vinnen.trackerjacket;
 
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.support.v4.content.res.TypedArrayUtils;
 import android.util.Log;
 
@@ -126,9 +127,21 @@ public class Cube {
     private final int vertexCount;
     private final int vertexStride = 7*4; //COORDS_PER_VERTEX * 4; // 4 bytes per vertex
 
-    public void draw(float[] mvpMatrix) {
+    public void draw(float[] mvpMatrix, float posX, float posY, float posZ, float x, float y, float z, float rotX, float rotY, float rotZ) {
+        float[] modelMatrix = new float[16];
+        for (int i = 0; i < mvpMatrix.length; i++) {
+            modelMatrix[i] = mvpMatrix[i];
+        }
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(mProgram);
+
+        Matrix.translateM(modelMatrix,0, posX, posY, posZ);
+        Matrix.rotateM(modelMatrix,0,rotX, 1, 0, 0);
+        Matrix.rotateM(modelMatrix,0,rotY, 0, 1, 0);
+        Matrix.rotateM(modelMatrix,0,rotZ, 0, 0, 1);
+        Matrix.scaleM(modelMatrix,0, x, y, z);
+
+
 
         // get handle to vertex shader's vPosition member
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
@@ -158,7 +171,7 @@ public class Cube {
         //GLES20.glUniform4f(GLES20.glGetAttribLocation(mProgram,"chris"),0,1f,0, 1);
 
         // Pass the projection and view transformation to the shader
-        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, modelMatrix, 0);
 
         // Draw the triangle
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
