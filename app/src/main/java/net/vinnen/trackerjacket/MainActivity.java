@@ -13,6 +13,8 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
@@ -27,14 +29,13 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     public static final String TAG = "ConnectThread";
 
-    public ArmSegment upperLeftArm = new ArmSegment();
-    public ArmSegment upperRightArm = new ArmSegment();
-    public ArmSegment lowerLeftArm = new ArmSegment();
-    public ArmSegment lowerRightArm = new ArmSegment();
+    public ArmSegment uLA = new ArmSegment(0.15f,1.6f,-0.1f,0.065f,0.3f,0.065f,0,0,-90);
+    public ArmSegment uRA = new ArmSegment(-0.15f,1.6f,-0.1f,0.065f,0.3f,0.065f ,0, 0, 0);
+    //public ArmSegment lLA = new ArmSegment();
+    //public ArmSegment lRA = new ArmSegment();
 
     private TextureView mTextureView;
     Camera mCamera;
-    Paint green = new Paint();
     Canvas pic;
 
     ConnectThread connectThread;
@@ -56,14 +57,22 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         setContentView(R.layout.activity_main);
 
         mTextureView = findViewById(R.id.textuV);
+
+        mTextureView.setOnTouchListener(new View.OnTouchListener() {
+            private float firstDown = 0f;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    firstDown = event.getAxisValue(0);
+                    return true;
+                }
+                rendererThread.rota = (event.getAxisValue(0)-firstDown)/2;
+                //Log.d(TAG,"Scroll: " + (event.getAxisValue(0)-firstDown));
+                return true;
+            }
+        });
+
         mTextureView.setSurfaceTextureListener(this);
-
-        green.setColor(Color.GREEN);
-        green.setStrokeWidth(10);
-
-
-
-
 
         final Button sendTime = (Button)findViewById(R.id.sendTimeBtn);
         sendTime.setOnClickListener(new View.OnClickListener() {
@@ -127,9 +136,12 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
             }
             tv[i].setText(String.valueOf(values[i]).split("\\.")[0]);//valuesToDisplay[i]);
         }
-        lowerRightArm.rotX = (float)values[3];
-        lowerRightArm.rotY = (float)values[2];
-        lowerRightArm.rotZ = (float)values[1];
+        //lowerRightArm.rotX = (float)values[3];
+        //lowerRightArm.rotY = (float)values[2];
+        //lowerRightArm.rotZ = (float)values[1];
+        uRA.rotX = (float)values[5];
+        uRA.rotY = (float)values[6];
+        uRA.rotZ = (float)values[7];
     }
 
     public void calibrateJacket(View v){

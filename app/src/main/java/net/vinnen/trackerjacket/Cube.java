@@ -180,6 +180,10 @@ public class Cube {
         GLES20.glDisableVertexAttribArray(mPositionHandle);
     }
 
+    public void draw(float[] mvpMatrix, ArmSegment arm){
+        draw(mvpMatrix, arm.posX, arm.posY, arm.posZ, arm.x, arm.y, arm.z, arm.rotX, arm.rotY, arm.rotZ);
+    }
+
     private final String vertexShaderCode =
             "uniform mat4 uMVPMatrix;" +
                     "attribute vec4 a_Color;" +

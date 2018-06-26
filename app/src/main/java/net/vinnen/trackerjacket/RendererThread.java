@@ -41,11 +41,9 @@ public class RendererThread extends Thread {
     boolean isStopped = false;
     private SurfaceTexture surface;
     private  MainActivity mainActivity;
-    private Cube upperLeftArm;
-    private Cube lowerLeftArm;
-    private Cube upperRightArm;
-    private Cube lowerRightArm;
-    private Cube body;
+    private Cube cube;
+
+    public double rota = 0d; //Winkel
 
     public RendererThread(SurfaceTexture surface, MainActivity mainActivity){
         this.surface = surface;
@@ -83,7 +81,6 @@ public class RendererThread extends Thread {
 
         float color = 0.6f;
 
-        double rota = 0d; //Winkel
         float xFin = 0f;
         float yFin = 0f;
 
@@ -94,7 +91,7 @@ public class RendererThread extends Thread {
 
         GLES20.glEnable(GLES20.GL_CULL_FACE);
 
-        this.upperLeftArm = new Cube();
+        this.cube = new Cube();
         //this.lowerLeftArm = new Cube();
         //this.upperRightArm = new Cube();
         //this.lowerRightArm = new Cube();
@@ -102,7 +99,6 @@ public class RendererThread extends Thread {
 
         while (!isStopped && egl.eglGetError() == EGL_SUCCESS) {
             egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
-            rota += 0.2;
             rota = rota % 360;
             xFin = (float)(1 * Math.cos(Math.toRadians(rota)) - 1 * Math.sin(Math.toRadians(rota)));
             yFin = (float)(1 * Math.sin(Math.toRadians(rota)) + 1 * Math.cos(Math.toRadians(rota)));
@@ -122,21 +118,23 @@ public class RendererThread extends Thread {
             //lowerRightArm.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
             //upperRightArm.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
             //body.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
-            upperLeftArm.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
-            upperLeftArm.draw(mMVPMatrix,-0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
-            upperLeftArm.draw(mMVPMatrix,0.15f,0.5f,0,0.08f,0.5f,0.08f,-15,0,8);
-            upperLeftArm.draw(mMVPMatrix,-0.15f,0.5f,0,0.08f,0.5f,0.08f,-15,0,-8);
+            cube.draw(mMVPMatrix,0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
+            cube.draw(mMVPMatrix,-0.15f,0,0,0.08f,0.5f,0.08f,0,0,0);
+            cube.draw(mMVPMatrix,0.15f,0.5f,0,0.08f,0.5f,0.08f,-15,0,8);
+            cube.draw(mMVPMatrix,-0.15f,0.5f,0,0.08f,0.5f,0.08f,-15,0,-8);
             //Body
-            upperLeftArm.draw(mMVPMatrix,0,1f,-0.1f,0.30f,0.7f,0.10f,0,0,0);
-            upperLeftArm.draw(mMVPMatrix,0,1.7f,-0.1f,0.14f,0.15f,0.16f,0,0,0);
+            cube.draw(mMVPMatrix,0,1f,-0.1f,0.30f,0.7f,0.10f,0,0,0);
+            cube.draw(mMVPMatrix,0,1.7f,-0.1f,0.14f,0.15f,0.16f,0,0,0);
 
             //RightArm
-            upperLeftArm.draw(mMVPMatrix,-0.15f,1.6f,-0.1f,0.065f,0.3f,0.065f,0,0,90);
-            upperLeftArm.draw(mMVPMatrix,-0.45f,1.6f,-0.1f,0.065f,0.30f,0.065f,mainActivity.lowerRightArm.rotX,mainActivity.lowerRightArm.rotY,mainActivity.lowerRightArm.rotZ);
+            cube.draw(mMVPMatrix, mainActivity.uRA);
+            //cube.draw(mMVPMatrix,-0.45f,1.6f,-0.1f,0.065f,0.30f,0.065f,0,0,0);
+            mainActivity.uRA.getEndpoint();
+            cube.draw(mMVPMatrix, mainActivity.uRA.endX, mainActivity.uRA.endY, mainActivity.uRA.endZ,0.065f,0.30f,0.065f,0,0,0);
 
             //LeftArm
-            upperLeftArm.draw(mMVPMatrix,0.15f,1.6f,-0.1f,0.065f,0.3f,0.065f,0,0,-90);
-            upperLeftArm.draw(mMVPMatrix,0.45f,1.6f,-0.1f,0.065f,0.30f,0.065f,0, 0, -90);
+            cube.draw(mMVPMatrix,mainActivity.uLA);
+            cube.draw(mMVPMatrix,0.45f,1.6f,-0.1f,0.065f,0.30f,0.065f,0, 0, -90);
 
             egl.eglSwapBuffers(eglDisplay, eglSurface);
             try {
