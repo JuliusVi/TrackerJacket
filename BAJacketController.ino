@@ -9,8 +9,8 @@
 #define LED_PIN 12 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
 #define INTERRUPT_PIN 26  // use pin 2 on Arduino Uno & most boards
 
-char ctrlChar='a';
-bool writeToFile = false;
+char ctrlChar='n';
+bool writeToFile = true;
 bool printCurrentValues = true;
 String currentFilenameString = "/output.txt";
 char currentFilename[30];
@@ -41,7 +41,6 @@ MPU6050 mpu[5];
 #define TCADDR 0x70
 
 int sensorNumber = 0;
-//MPU6050 mpu(0x69); // <-- use for AD0 high
 
 #define OUTPUT_READABLE_YAWPITCHROLL
 
@@ -61,10 +60,6 @@ VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measure
 VectorFloat gravity;    // [x, y, z]            gravity vector
 float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
-
-// packet structure for InvenSense teapot demo
-//uint8_t teapotPacket[14] = { '$', 0x02, 0,0, 0,0, 0,0, 0,0, 0x00, 0x00, '\r', '\n' };
-
 
 
 // ================================================================
@@ -135,9 +130,9 @@ void setup() {
         devStatus = mpu[sensorNumber].dmpInitialize();
     
         // supply your own gyro offsets here, scaled for min sensitivity
-        mpu[sensorNumber].setXGyroOffset(220);
-        mpu[sensorNumber].setYGyroOffset(76);
-        mpu[sensorNumber].setZGyroOffset(-85);
+        mpu[sensorNumber].setXGyroOffset(220); // 220
+        mpu[sensorNumber].setYGyroOffset(76);  // 76
+        mpu[sensorNumber].setZGyroOffset(-85); // -85
         mpu[sensorNumber].setZAccelOffset(1788); // 1688 factory default for my test chip
     
         // make sure it worked (returns 0 if so)
@@ -214,21 +209,27 @@ void loop() {
       }
       if(ctrlChar == 'F'){  //writeToFile
         writeToFile = true;
+        ctrlChar = 'n';
       }
       if(ctrlChar == 'f'){  //stopWriteToFile
         writeToFile = false;
+        ctrlChar = 'n';
       }
       if(ctrlChar == 'D'){  //sendCurrentData
         printCurrentValues = true;
+        ctrlChar = 'n';
       }
       if(ctrlChar == 'd'){  //stopSendCurrentData
         printCurrentValues = false;
+        ctrlChar = 'n';
       }
       if(ctrlChar == 'C'){  //CalibrationStart
         setCalibrationMarker(true);
+        ctrlChar = 'n';
       }
       if(ctrlChar == 'c'){  //CalibrationEnd
         setCalibrationMarker(false);
+        ctrlChar = 'n';
       }
       if(ctrlChar == 't'){  //time
         String timeString = "millis,";
@@ -244,9 +245,11 @@ void loop() {
             timeString.concat(millis());
             timeString.concat("\n");
             timeString.toCharArray(timeBuf,40);
+            Serial.print(timeString);
             appendFile(SD_MMC, currentFilename, timeBuf);
           }
         }
+        ctrlChar = 'n';
       }
   }else{
      if(!bluetoothInitiated){
@@ -305,7 +308,7 @@ void readSensors(){
         tSt.concat(",");
         tSt.concat((ypr[0] * 180/M_PI));
         tSt.concat(",");
-        tSt.concat((ypr[1] * 180/M_PI));
+        tSt.concat((ypr[2] * 180/M_PI));
         tSt.concat(",");
         tSt.concat((ypr[2] * 180/M_PI));
         tSt.concat("\n");
