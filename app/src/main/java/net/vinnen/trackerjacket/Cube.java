@@ -117,7 +117,7 @@ public class Cube {
 
         // creates OpenGL ES program executables
         GLES20.glLinkProgram(mProgram);
-        Log.d("tria", GLES20.glGetShaderInfoLog(vertexShader));
+        Log.d("cube", GLES20.glGetShaderInfoLog(vertexShader));
 
     }
 
@@ -135,13 +135,14 @@ public class Cube {
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(mProgram);
 
+        //Matrix.setIdentityM(modelMatrix, 0);
         Matrix.translateM(modelMatrix,0, posX, posY, posZ);
-        Matrix.rotateM(modelMatrix,0,rotX, 1, 0, 0);
+
         Matrix.rotateM(modelMatrix,0,rotY, 0, 1, 0);
+        Matrix.rotateM(modelMatrix,0,rotX, 1, 0, 0);
         Matrix.rotateM(modelMatrix,0,rotZ, 0, 0, 1);
+
         Matrix.scaleM(modelMatrix,0, x, y, z);
-
-
 
         // get handle to vertex shader's vPosition member
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
@@ -181,7 +182,7 @@ public class Cube {
     }
 
     public void draw(float[] mvpMatrix, ArmSegment arm){
-        draw(mvpMatrix, arm.posX, arm.posY, arm.posZ, arm.x, arm.y, arm.z, arm.rotX, arm.rotY, arm.rotZ);
+        draw(mvpMatrix, arm.posX, arm.posY, arm.posZ, arm.dimX, arm.dimY, arm.dimZ, arm.rotX, arm.rotY, arm.rotZ);
     }
 
     private final String vertexShaderCode =

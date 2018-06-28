@@ -139,9 +139,10 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         //lowerRightArm.rotX = (float)values[3];
         //lowerRightArm.rotY = (float)values[2];
         //lowerRightArm.rotZ = (float)values[1];
-        uRA.rotX = (float)values[5];
-        uRA.rotY = (float)values[6];
-        uRA.rotZ = (float)values[7];
+
+        uRA.rotX = (float)values[6];
+        uRA.rotY = (float) (180 - values[5]);
+        uRA.rotZ = (float) (180 - (values[7]+90));
     }
 
     public void calibrateJacket(View v){
