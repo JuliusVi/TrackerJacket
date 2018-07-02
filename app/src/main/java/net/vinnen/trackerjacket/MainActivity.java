@@ -31,8 +31,9 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     public ArmSegment uLA = new ArmSegment(0.15f,1.6f,-0.1f,0.065f,0.3f,0.065f,0,0,-90);
     public ArmSegment uRA = new ArmSegment(-0.15f,1.6f,-0.1f,0.065f,0.3f,0.065f ,0, 0, 0);
-    //public ArmSegment lLA = new ArmSegment();
-    //public ArmSegment lRA = new ArmSegment();
+
+    public ArmSegment lLA = new ArmSegment(0,0,0,0.065f,0.3f,0.065f,0,0,0);
+    public ArmSegment lRA = new ArmSegment(0,0,0,0.065f,0.3f,0.065f,0,0,0);
 
     private TextureView mTextureView;
     Camera mCamera;
@@ -95,11 +96,11 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
             tv[i*4+3] = cl[i].findViewById(R.id.roll);
         }
 
-        valuesToDisplay[0] = "Body:";
-        valuesToDisplay[4] = "UpLeft:";
+        valuesToDisplay[16] = "Body:";
+        valuesToDisplay[12] = "UpLeft:";
         valuesToDisplay[8] = "LowLeft";
-        valuesToDisplay[12] = "UpRight:";
-        valuesToDisplay[16] = "LowRight:";
+        valuesToDisplay[4] = "UpRight:";
+        valuesToDisplay[0] = "LowRight:";
 
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -131,18 +132,32 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     public void updateDisplay(){
         for (int i = 0; i < valuesToDisplay.length; i++) {
             if(i%4 != 0){
-                values[i] = Double.parseDouble(valuesToDisplay[i])-valuesOffset[i];
+                values[i] = Double.parseDouble(valuesToDisplay[i]);
                 //valuesToDisplay[i] = String.valueOf(values[i]).split(",")[0];
             }
-            tv[i].setText(String.valueOf(values[i]).split("\\.")[0]);//valuesToDisplay[i]);
+            if(i%4 == 0){
+                tv[i].setText(valuesToDisplay[i]);
+            }else {
+                tv[i].setText(String.valueOf(values[i]).split("\\.")[0]);//valuesToDisplay[i]);
+            }
         }
-        //lowerRightArm.rotX = (float)values[3];
-        //lowerRightArm.rotY = (float)values[2];
-        //lowerRightArm.rotZ = (float)values[1];
+
+        lRA.rotX = (float)values[2];
+        lRA.rotY = (float) (360 - (values[1] - valuesOffset[1]));
+        lRA.rotZ = (float) (180 - (values[3]+90));
+        //Log.d(TAG, "Val: " + (values[1] - valuesOffset[1]));
 
         uRA.rotX = (float)values[6];
-        uRA.rotY = (float) (180 - values[5]);
+        uRA.rotY = (float) (360 - (values[5] - valuesOffset[5]));
         uRA.rotZ = (float) (180 - (values[7]+90));
+
+        lLA.rotX = (float)values[10];
+        lLA.rotY = (float) (180 - (values[9] - valuesOffset[9]));
+        lLA.rotZ = (float) (180 - (values[11]+90));
+
+        uLA.rotX = (float)values[14];
+        uLA.rotY = (float) (180 - (values[13] - valuesOffset[13]));
+        uLA.rotZ = (float) (180 - (values[15]+90));
     }
 
     public void calibrateJacket(View v){

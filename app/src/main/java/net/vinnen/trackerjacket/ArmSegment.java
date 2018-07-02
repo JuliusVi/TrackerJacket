@@ -19,6 +19,10 @@ public class ArmSegment {
         this.rotZ = rotZ;
     }
 
+    public ArmSegment(){
+
+    }
+
     public float posX;
     public float posY;
     public float posZ;
